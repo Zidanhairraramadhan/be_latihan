@@ -1,0 +1,427 @@
+basePath: /
+definitions:
+  model.AuthRequest:
+    properties:
+      password:
+        example: admin123
+        type: string
+      role:
+        example: admin
+        type: string
+      username:
+        example: admin
+        type: string
+    type: object
+  model.AuthUserResponse:
+    properties:
+      id:
+        example: 2f5d7e2a-1234-4567-8901-abcdefabcdef
+        type: string
+      role:
+        example: admin
+        type: string
+      username:
+        example: admin
+        type: string
+    type: object
+  model.ChangePasswordRequest:
+    properties:
+      confirm_password:
+        example: newpassword456
+        type: string
+      new_password:
+        example: newpassword456
+        type: string
+      old_password:
+        example: admin123
+        type: string
+    type: object
+  model.LoginResponse:
+    properties:
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxxxx
+        type: string
+      user:
+        $ref: '#/definitions/model.AuthUserResponse'
+    type: object
+  model.Mahasiswa:
+    properties:
+      alamat:
+        example: Bandung
+        type: string
+      email:
+        example: zidan@example.com
+        type: string
+      nama:
+        example: Zidan Hairra Ramadhan
+        type: string
+      no_hp:
+        example: "081234567890"
+        type: string
+      npm:
+        example: "714240061"
+        type: string
+      prodi:
+        example: D4 Teknik Informatika
+        type: string
+    type: object
+  model.Response:
+    properties:
+      data: {}
+      error:
+        example: detail error
+        type: string
+      message:
+        example: detail pesan
+        type: string
+    type: object
+  model.Response200:
+    properties:
+      data: {}
+      message:
+        example: berhasil mengambil data
+        type: string
+    type: object
+  model.Response201:
+    properties:
+      data: {}
+      message:
+        example: data berhasil ditambahkan
+        type: string
+    type: object
+  model.Response401:
+    properties:
+      message:
+        example: token tidak valid atau tidak ditemukan
+        type: string
+    type: object
+  model.Response403:
+    properties:
+      message:
+        example: user tidak memiliki akses untuk fitur ini
+        type: string
+    type: object
+host: 127.0.0.1:3000
+info:
+  contact:
+    email: praktikum@example.com
+    name: Praktikum Pemrograman III
+  description: Dokumentasi API backend be_latihan menggunakan Golang Fiber, GORM,
+    PostgreSQL, dan JWT.
+  title: API Praktikum 13 - be_latihan
+  version: "1.0"
+paths:
+  /api/change-password:
+    put:
+      consumes:
+      - application/json
+      description: Mengubah password user yang sedang login berdasarkan token JWT.
+        Membutuhkan password lama, password baru, dan konfirmasi password baru.
+      parameters:
+      - description: Payload ubah password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password berhasil diubah
+          schema:
+            $ref: '#/definitions/model.Response200'
+        "400":
+          description: Password lama/baru kosong atau konfirmasi tidak cocok
+          schema:
+            $ref: '#/definitions/model.Response'
+        "401":
+          description: Token JWT tidak valid atau password lama salah
+          schema:
+            $ref: '#/definitions/model.Response401'
+        "500":
+          description: Terjadi kesalahan pada server
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: Ubah password user
+      tags:
+      - Auth
+  /api/mahasiswa/:
+    get:
+      consumes:
+      - application/json
+      description: Mengambil seluruh data mahasiswa. Endpoint ini membutuhkan token
+        JWT, tetapi tidak membatasi role admin.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil semua data mahasiswa
+          schema:
+            $ref: '#/definitions/model.Response200'
+        "401":
+          description: Token JWT tidak ada atau tidak valid
+          schema:
+            $ref: '#/definitions/model.Response401'
+        "500":
+          description: Terjadi kesalahan pada server
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: Ambil semua data mahasiswa
+      tags:
+      - Mahasiswa
+    post:
+      consumes:
+      - application/json
+      description: Menambahkan data mahasiswa baru. Endpoint ini hanya dapat diakses
+        oleh role admin.
+      parameters:
+      - description: Payload data mahasiswa
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.Mahasiswa'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Mahasiswa berhasil ditambahkan
+          schema:
+            $ref: '#/definitions/model.Response201'
+        "400":
+          description: Payload tidak valid atau NPM/Nama kosong
+          schema:
+            $ref: '#/definitions/model.Response'
+        "401":
+          description: Token JWT tidak ada atau tidak valid
+          schema:
+            $ref: '#/definitions/model.Response401'
+        "403":
+          description: Role user tidak memiliki akses ke endpoint ini
+          schema:
+            $ref: '#/definitions/model.Response403'
+        "500":
+          description: Terjadi kesalahan pada server
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: Tambah data mahasiswa
+      tags:
+      - Mahasiswa
+  /api/mahasiswa/{npm}:
+    delete:
+      consumes:
+      - application/json
+      description: Menghapus data mahasiswa berdasarkan NPM. Endpoint ini hanya dapat
+        diakses oleh role admin.
+      parameters:
+      - description: NPM mahasiswa
+        in: path
+        name: npm
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Mahasiswa berhasil dihapus
+          schema:
+            $ref: '#/definitions/model.Response200'
+        "400":
+          description: Format NPM tidak valid
+          schema:
+            $ref: '#/definitions/model.Response'
+        "401":
+          description: Token JWT tidak ada atau tidak valid
+          schema:
+            $ref: '#/definitions/model.Response401'
+        "403":
+          description: Role user tidak memiliki akses ke endpoint ini
+          schema:
+            $ref: '#/definitions/model.Response403'
+        "500":
+          description: Terjadi kesalahan pada server
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: Hapus data mahasiswa
+      tags:
+      - Mahasiswa
+    get:
+      consumes:
+      - application/json
+      description: Mengambil satu data mahasiswa berdasarkan NPM. Endpoint ini hanya
+        dapat diakses oleh role admin.
+      parameters:
+      - description: NPM mahasiswa
+        in: path
+        name: npm
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Data mahasiswa berhasil ditemukan
+          schema:
+            $ref: '#/definitions/model.Response200'
+        "400":
+          description: Format NPM tidak valid
+          schema:
+            $ref: '#/definitions/model.Response'
+        "401":
+          description: Token JWT tidak ada atau tidak valid
+          schema:
+            $ref: '#/definitions/model.Response401'
+        "403":
+          description: Role user tidak memiliki akses ke endpoint ini
+          schema:
+            $ref: '#/definitions/model.Response403'
+        "404":
+          description: Data mahasiswa tidak ditemukan
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Terjadi kesalahan pada server
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: Ambil data mahasiswa berdasarkan NPM
+      tags:
+      - Mahasiswa
+    put:
+      consumes:
+      - application/json
+      description: Mengubah data mahasiswa berdasarkan NPM. NPM pada body akan dipaksa
+        mengikuti NPM pada URL.
+      parameters:
+      - description: NPM mahasiswa
+        in: path
+        name: npm
+        required: true
+        type: string
+      - description: Payload data mahasiswa
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.Mahasiswa'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Data mahasiswa berhasil diubah
+          schema:
+            $ref: '#/definitions/model.Response200'
+        "400":
+          description: Format NPM atau payload tidak valid
+          schema:
+            $ref: '#/definitions/model.Response'
+        "401":
+          description: Token JWT tidak ada atau tidak valid
+          schema:
+            $ref: '#/definitions/model.Response401'
+        "403":
+          description: Role user tidak memiliki akses ke endpoint ini
+          schema:
+            $ref: '#/definitions/model.Response403'
+        "404":
+          description: Data mahasiswa tidak ditemukan
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Terjadi kesalahan pada server
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: Ubah data mahasiswa
+      tags:
+      - Mahasiswa
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Melakukan login dan mengembalikan JWT jika username dan password
+        valid.
+      parameters:
+      - description: Payload login user
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.AuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login berhasil, token JWT dikembalikan
+          schema:
+            $ref: '#/definitions/model.LoginResponse'
+        "400":
+          description: Payload tidak valid
+          schema:
+            $ref: '#/definitions/model.Response'
+        "401":
+          description: Username atau password salah
+          schema:
+            $ref: '#/definitions/model.Response401'
+        "500":
+          description: Terjadi kesalahan pada server
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: Login user
+      tags:
+      - Auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Membuat akun user baru. Role dapat diisi admin atau user. Jika
+        role kosong, backend akan memakai default admin.
+      parameters:
+      - description: Payload register user
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.AuthRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Register berhasil, akun user berhasil dibuat
+          schema:
+            $ref: '#/definitions/model.Response201'
+        "400":
+          description: Username atau password kosong, atau payload tidak valid
+          schema:
+            $ref: '#/definitions/model.Response'
+        "409":
+          description: Username sudah digunakan
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Terjadi kesalahan pada server
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: Register user baru
+      tags:
+      - Auth
+schemes:
+- http
+- https
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
