@@ -42,7 +42,7 @@ func GetDB() *gorm.DB {
 func GetAllowedOrigins() []string {
 	origins := os.Getenv("ALLOWED_ORIGINS")
 	if origins == "" {
-		return []string{"http://localhost:5173", "http://localhost:3000", "http://amused-fulfillment-production-6e6d.up.railway.app"}
+		return []string{"http://localhost:5173", "http://amused-fulfillment-production-6e6d.up.railway.app"}
 	}
 	return strings.Split(origins, ",")
 }
