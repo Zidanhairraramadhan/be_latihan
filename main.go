@@ -2,15 +2,18 @@ package main
 
 import (
 	"be_latihan/config"
+	"be_latihan/docs"
 	"be_latihan/model"
 	"be_latihan/router"
 	"log"
+	"os"
 	"strings"
 
 	_ "be_latihan/docs"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	
 )
 
 // @title API Praktikum 13 - be_latihan
@@ -38,6 +41,12 @@ func main() {
 		AllowMethods: "GET,POST,PUT,DELETE,OPTIONS",
 		AllowHeaders: "Origin,Content-Type,Accept,Authorization",
 	}))
+
+	swaggerHost := os.Getenv("SWAGGER_HOST")
+	if swaggerHost == "" {
+		swaggerHost = "127.0.0.1:3000"
+	}
+	docs.SwaggerInfo.Host = swaggerHost
 
 	router.SetupRoutes(app)
 
